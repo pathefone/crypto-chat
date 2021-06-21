@@ -39,23 +39,23 @@ int bruteforce(int e, int mod) {
 
 //g++ -lgmp keyManagement.cpp
 
-//13, 17, 127, 199, 211, 7, 911, 389, 397, 409
+
 
 void generate_RSA(user &User) {
 
-    int primeNumList[] = { 3,5}; // we may have problems when the decrypt key is 1?
-    //length 0-2
+    int primeNumList[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293};
+
 
 
         int randomNumber = 0; //private keys and random number
 
         //generate random seed
         srand(time(NULL));
-        randomNumber=rand() % 2;
+        randomNumber=rand() % 14;
         User.p = primeNumList[randomNumber];
 
         do {
-            randomNumber=rand() % 2;
+            randomNumber=rand() % 14;
         }while(primeNumList[randomNumber] == User.p);
 
             User.q = primeNumList[randomNumber];
