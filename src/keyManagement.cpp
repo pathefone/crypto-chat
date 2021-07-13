@@ -5,6 +5,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 #include <gmp.h>
+#include <string>
 
 using namespace std;
 
@@ -114,36 +115,43 @@ vector<int> encrypt_message(user &User, vector<int> ascii_plain_list) {
     unsigned long longCypher = mpz_get_ui(preCypher);
     int cypher = longCypher;
 
-    ascii_cyphered_list[i].push_back(cypher);
+    ascii_cyphered_list.push_back(cypher);
 }
 
     return ascii_cyphered_list;
 
 }
 
-int decrypt_message(user &User, int cypher) {
+vector <int> decrypt_message(user &User, vector <int> ascii_cypher_list) {
+
+    vector <int> ascii_plain_list;
+    int asciiCypheredListSize = ascii_cypher_list.size();
 
     mpz_t number;
     mpz_init(number);
     mpz_t cypherMPZ;
     mpz_init(cypherMPZ);
-    mpz_set_ui(cypherMPZ, cypher);
 
-    mpz_pow_ui(number, cypherMPZ, User.d);
-
-    //long double number = pow(cypher, User.d);
     mpz_t preDecrypt;
     mpz_init(preDecrypt);
     mpz_t mpzUserN;
     mpz_init(mpzUserN);
     mpz_set_ui(mpzUserN, User.N);
 
+    for(int i=0;i<=asciiCypheredListSize;i++) {
+
+    mpz_set_ui(cypherMPZ, ascii_cypher_list[i]);
+    mpz_pow_ui(number, cypherMPZ, User.d);
     mpz_mod(preDecrypt, number, mpzUserN);
 
     unsigned long longDecrypt = mpz_get_ui(preDecrypt);
     int decrypted = longDecrypt;
 
-    return decrypted;
+    ascii_plain_list.push_back(decrypted);
+
+    }
+
+    return ascii_plain_list;
 
 }
 
@@ -158,6 +166,19 @@ vector<int> convertToASCII(string s)
     }
 
     return list;
+}
+
+string convertFromASCII(vector<int> ascii_list) {
+
+    string converted;
+    int ascii_list_size = ascii_list.size();
+
+    for(int i=0;i<=ascii_list_size-1;i++) {
+        char temp = (char)ascii_list[i];
+        converted += temp;
+    }
+
+    return converted;
 }
 
 void dashboard() {
@@ -178,23 +199,33 @@ void dashboard() {
 
                 user RandomUser;
                 generate_RSA(RandomUser);
+                string plainTextMessage;
 
-                string text_message = "Labas";
-                vector <int> ascii_keys;
-                ascii_keys = convertToASCII(text_message);
-
-                vector<int> encrypted_ascii_list = encrypt_message(RandomUser, ascii_keys);
-
-                int decrypted = decrypt_message(RandomUser, encrypted);
-
-                printf("Encrypted message: %d\n", encrypted);
-
-                printf("Decrypt key: %d\n", RandomUser.d);
-                printf("E: %d, euler: %d, N: %d \n", RandomUser.e, RandomUser.euler, RandomUser.N);
+                cout << "Enter a message you want to encrypt: ";
+                cin.ignore();
+                getline(cin, plainTextMessage);
 
 
 
-                printf("Decrypted message: %d\n", decrypted);
+
+                cout << "YOU ENTERED : " << plainTextMessage;
+
+
+                vector <int> ascii_keys = convertToASCII(plainTextMessage);
+
+                vector <int> encrypted_ascii_list = encrypt_message(RandomUser, ascii_keys);
+                vector <int> decrypted_ascii_list = decrypt_message(RandomUser, encrypted_ascii_list);
+
+                string decryptedMessage = convertFromASCII(decrypted_ascii_list);
+
+            //    printf("Encrypted message first letter: %d\n", encrypted_ascii_list[0]);
+
+            //    printf("Decrypt key: %d\n", RandomUser.d);
+          //      printf("E: %d, euler: %d, N: %d \n", RandomUser.e, RandomUser.euler, RandomUser.N);
+
+
+                cout << "Your decrypted message: " << decryptedMessage << "\n" ;
+
 
             //    printf("Random user name: %s", RandomUser.username.c_str());
 
@@ -212,3 +243,5 @@ int main()
 
 	return 0;
 }
+
+//when the keys are very big, for example 269 251 yet again the numbers are too high for calculations, find solution!
