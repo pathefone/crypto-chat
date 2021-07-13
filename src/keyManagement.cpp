@@ -50,11 +50,11 @@ void generate_RSA(user &User) {
 
         //generate random seed
         srand(time(NULL));
-        randomNumber=rand() % 14;
+        randomNumber=rand() % 61;
         User.p = primeNumList[randomNumber];
 
         do {
-            randomNumber=rand() % 14;
+            randomNumber=rand() % 61;
         }while(primeNumList[randomNumber] == User.p);
 
             User.q = primeNumList[randomNumber];
@@ -86,32 +86,38 @@ void generate_RSA(user &User) {
 
 
 
-int encrypt_message(user &User, int plainTextMsg) {
+vector<int> encrypt_message(user &User, vector<int> ascii_plain_list) {
 
-  //  int cypher = 0;
+    vector<int> ascii_cyphered_list;
+    int asciiPlainListSize = ascii_plain_list.size();
+
+
     mpz_t number;
     mpz_t base;
     mpz_init(base);
     mpz_init(number);
-    mpz_set_ui(base, plainTextMsg);
-    mpz_pow_ui(number, base, User.e);
 
-   // = pow(plainTextMsg, User.e); //toobig num, generate smaller e
-  //  printf("BIG NUM: %d", number);
     mpz_t preCypher;
     mpz_init(preCypher);
     mpz_t mpzUserN;
     mpz_init(mpzUserN);
+
     mpz_set_ui(mpzUserN, User.N);
 
+    for(int i=0;i<=asciiPlainListSize;i++) {
+
+    mpz_set_ui(base, ascii_plain_list[i]);
+    mpz_pow_ui(number, base, User.e);
     mpz_mod(preCypher, number, mpzUserN);
 
+    //check this
     unsigned long longCypher = mpz_get_ui(preCypher);
     int cypher = longCypher;
 
-  //  cypher = fmod(number,User.N);
-  //  printf("Cypher: %d Message: %d", cypher, plainTextMsg);
-    return cypher;
+    ascii_cyphered_list[i].push_back(cypher);
+}
+
+    return ascii_cyphered_list;
 
 }
 
@@ -149,58 +155,59 @@ vector<int> convertToASCII(string s)
     for (int i = 0; i < s.length(); i++)
     {
         list.push_back((int)s[i]);
-      //  cout << (int)s[i]<< endl;
     }
 
     return list;
 }
 
+void dashboard() {
+
+        printf("Hello and welcome to RSA key management and communication software in CLI!\n");
+        printf("This is a super mega ultra demo version -0.9999 v.\n");
+        printf("Have fun! \n\n");
+
+        int option;
+
+        cout << "To generate a new5 RSA key pair press 1\n";
+        cout << "To exit press 0\n";
+        cout << "Your option: ";
+        cin >> option;
+
+        if(option==1) {
+                printf("You have successfully selected new RSA key pair generation!\n");
+
+                user RandomUser;
+                generate_RSA(RandomUser);
+
+                string text_message = "Labas";
+                vector <int> ascii_keys;
+                ascii_keys = convertToASCII(text_message);
+
+                vector<int> encrypted_ascii_list = encrypt_message(RandomUser, ascii_keys);
+
+                int decrypted = decrypt_message(RandomUser, encrypted);
+
+                printf("Encrypted message: %d\n", encrypted);
+
+                printf("Decrypt key: %d\n", RandomUser.d);
+                printf("E: %d, euler: %d, N: %d \n", RandomUser.e, RandomUser.euler, RandomUser.N);
+
+
+
+                printf("Decrypted message: %d\n", decrypted);
+
+            //    printf("Random user name: %s", RandomUser.username.c_str());
+
+
+        }
+
+}
+
 
 int main()
 {
+    dashboard();
 
-    printf("Hello and welcome to RSA key management and communication software in CLI!\n");
-    printf("This is a super mega ultra demo version -0.9999 v.\n");
-    printf("Have fun! \n\n");
-
-    int option;
-
-    cout << "To generate a new5 RSA key pair press 1\n";
-    cout << "To exit press 0\n";
-    cout << "Your option: ";
-    cin >> option;
-
-    if(option==1) {
-            printf("You have successfully selected new RSA key pair generation!\n");
-
-            user RandomUser;
-            generate_RSA(RandomUser);
-
-            string text_message = "Labas";
-            vector <int> ascii_keys;
-            ascii_keys = convertToASCII(text_message);
-
-         //   cout << "ASCII KEYS: " << ascii_keys[0] << "" << ascii_keys[4];
-
-            int message = 80;
-
-
-            int encrypted = encrypt_message(RandomUser, message);
-            int decrypted = decrypt_message(RandomUser, encrypted);
-
-            printf("Encrypted message: %d\n", encrypted);
-
-            printf("Decrypt key: %d\n", RandomUser.d);
-            printf("E: %d, euler: %d, N: %d \n", RandomUser.e, RandomUser.euler, RandomUser.N);
-
-
-
-            printf("Decrypted message: %d\n", decrypted);
-
-        //    printf("Random user name: %s", RandomUser.username.c_str());
-
-
-    }
 
 
 	return 0;
