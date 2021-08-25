@@ -178,7 +178,7 @@ string convertFromASCII(vector<int> ascii_list) {
     return converted;
 }
 
-const size_t split_num = 13;
+const size_t split_num = 15;
 
 string convertToBinary(unsigned int n)
 {   //(in the future could check the size of biggest encrypted ascii and choose width of bitset accordingly)
@@ -237,15 +237,17 @@ b64_to_list(string formattedMessage)
 	int size = formattedMessage.size();
 	vector <string> b64listed;
 
+	int b64_sectors = 28;
 	string temp_string;
 
 	for(int i = 0; i < size; i++) {
 		
-		if(i==28) {
+		if(i==b64_sectors) {
 		     b64listed.push_back(temp_string);
 		     temp_string = "";
+		     b64_sectors = b64_sectors + 28;
 		}
-		else if(i == size-1) {
+		else if(i >= size-1) {
 			temp_string += formattedMessage[i];
 			b64listed.push_back(temp_string);
 			break;
@@ -308,9 +310,11 @@ binary_list_to_ascii(vector <string> binary_list, const size_t split_number_F)
 		for (int i = 0; i < size; i++ ) {
 			
 			string temp_string = binary_list[i];
-			bitset<13> bits(temp_string);
+			bitset<split_num> bits(temp_string);
 			ascii_list.push_back(bits.to_ulong());
 		}
+
+
 
 		return ascii_list;
 
@@ -351,17 +355,16 @@ void dashboard() {
 		//Formatted message to send
                 string formattedMessage = formatToString(binary_base64_list, splitNumString);
 		
-
-                cout << "\nFormatted message: " << formattedMessage;
-		
 		//Getting remote message to decrypt
 		int split_number;
+		
 		string dcrpt = format_remote_message(formattedMessage, split_number);
 		vector <string> b64list = b64_to_list(dcrpt);
 		vector <string> b64decoded = b64_decode_list(b64list);
 		
 		vector <int> ascii_list = binary_list_to_ascii(b64decoded, split_number);
 		vector <int> plain_list = decrypt_message(RandomUser, ascii_list);
+		
 		string receivedMessage = convertFromASCII(plain_list);
 
 		// decrypt every individual element in ascii_list and put it into string.
